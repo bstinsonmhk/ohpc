@@ -70,16 +70,16 @@ shown to produce high quality results and scale to very large problems.
 %build
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
-
+%{?scl_enable}
 make config shared=1 prefix=%{install_path}
 make
-
+%{?scl_disable}
 %install
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
-
+%{?scl_enable}
 make install DESTDIR=${RPM_BUILD_ROOT}
-
+%{?scl_disable}
 # OpenHPC module file
 %{__mkdir} -p %{buildroot}%{OHPC_MODULEDEPS}/%{compiler_family}/%{pname}
 %{__cat} << EOF > %{buildroot}/%{OHPC_MODULEDEPS}/%{compiler_family}/%{pname}/%{version}
