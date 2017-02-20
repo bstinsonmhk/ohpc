@@ -73,13 +73,13 @@ Docu can be found on http://www.netlib.org.
 
 %build
 %ohpc_setup_compiler
-
+%{?scl_enable}
 make lib
 
 mkdir tmp
 (cd tmp; ar -x ../SRC/libsuperlu.a)
 $FC -shared -Wl,-soname,libsuperlu.so.4 -o lib/libsuperlu.so tmp/*.o
-
+%{?scl_disable}
 %install
 mkdir -p %{buildroot}%{install_path}/lib
 mkdir -p %{buildroot}%{install_path}/include
