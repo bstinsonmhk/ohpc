@@ -51,15 +51,16 @@ lends itself to being used in very high level languages (VHLLs).
 %if %{compiler_family} == intel
 export CFLAGS="-fp-model strict $CFLAGS"
 %endif
-
+%{?scl_enable}
 ./configure --prefix=%{install_path} --disable-static || { cat config.log && exit 1; }
 make %{?_smp_mflags}
-
+%{?scl_disable}
 %install
 # OpenHPC compiler designation
 %ohpc_setup_compiler
+%{?scl_enable}
 make %{?_smp_mflags} DESTDIR=$RPM_BUILD_ROOT install
-
+%{?scl_disable}
 # Remove static libraries
 find "%buildroot" -type f -name "*.la" | xargs rm -f
 
