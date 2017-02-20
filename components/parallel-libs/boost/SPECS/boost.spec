@@ -125,6 +125,7 @@ see the boost-doc package.
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
 
+%{?scl_enable}
 %if %build_mpi
 export OHPC_MPI_FAMILY=%{mpi_family}
 . %{_sourcedir}/OHPC_setup_mpi
@@ -150,11 +151,11 @@ EOF
 # perform the compilation
 ./b2 %{?_smp_mflags} threading=multi link=shared variant=release --prefix=%{install_path} --user-config=./user-config.jam  || config.log
 
-
+%{?scl_disable}
 %install
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
-
+%{?scl_enable}
 %if %build_mpi
 export OHPC_MPI_FAMILY=%{mpi_family}
 . %{_sourcedir}/OHPC_setup_mpi
@@ -168,7 +169,7 @@ export MPICXX=mpicxx
 %endif
 
 ./b2 %{?_smp_mflags} install threading=multi link=shared --prefix=%{buildroot}/%{install_path} --user-config=./user-config.jam
-
+%{?scl_disable}
 
 # OpenHPC module file
 %if %build_mpi
