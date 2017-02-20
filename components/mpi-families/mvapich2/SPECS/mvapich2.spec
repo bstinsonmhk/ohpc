@@ -95,6 +95,7 @@ across multiple networks.
 
 %build
 %ohpc_setup_compiler
+%{?scl_enable}
 ./configure --prefix=%{install_path} \
 	    --enable-cxx \
 	    --enable-g=dbg \
@@ -108,13 +109,14 @@ across multiple networks.
 	    --enable-fast=O3 || { cat config.log && exit 1; }
 
 make
-
+%{?scl_disable}
 %install
 %ohpc_setup_compiler
-
+%{?scl_enable}
 # 06/04/15 - karl.w.schulz@intel.com; run serial build for fortran deps
 make DESTDIR=$RPM_BUILD_ROOT install
 
+%{?scl_disable}
 
 # Remove .la files detected by rpm
 rm $RPM_BUILD_ROOT/%{install_path}/lib/*.la

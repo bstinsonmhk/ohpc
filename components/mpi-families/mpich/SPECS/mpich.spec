@@ -51,6 +51,7 @@ Message Passing Interface (MPI) standard.
 # OpenHPC compiler designation
 %ohpc_setup_compiler
 
+%{?scl_enable}
 ./configure --prefix=%{install_path} \
 %if 0%{with_slurm}
             --with-pm=no --with-pmi=slurm \
@@ -58,12 +59,13 @@ Message Passing Interface (MPI) standard.
     || { cat config.log && exit 1; }
 
 make %{?_smp_mflags}
-
+%{?scl_disable}
 %install
 # OpenHPC compiler designation
 %ohpc_setup_compiler
+%{?scl_enable}
 make %{?_smp_mflags} DESTDIR=$RPM_BUILD_ROOT install
-
+%{?scl_disable}
 # Remove .la files detected by rpm
 rm $RPM_BUILD_ROOT/%{install_path}/lib/*.la
 

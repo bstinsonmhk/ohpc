@@ -71,6 +71,7 @@ OpenBLAS is an optimized BLAS library based on GotoBLAS2 1.13 BSD version.
 %build
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
+%{?scl_enable}
 
 # Only *86 CPUs support DYNAMIC_ARCH
 %ifarch %ix86 x86_64
@@ -84,12 +85,15 @@ OpenBLAS is an optimized BLAS library based on GotoBLAS2 1.13 BSD version.
 make    %{?openblas_target} USE_THREAD=1 USE_OPENMP=1 \
         PREFIX=%{buildroot}%{install_path}
 
+%{?scl_disable}
 %install
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
+%{?scl_enable}
 
 make   %{?openblas_target} PREFIX=%{buildroot}%{install_path} install
 
+%{?scl_disable}
 # Delete info about host cpu
 %ifarch %ix86 x86_64
 sed -i '/#define OPENBLAS_NEEDBUNDERSCORE/,/#define OPENBLAS_VERSION/{//!d}' %{buildroot}%{install_path}/include/openblas_config.h

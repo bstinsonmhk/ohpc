@@ -22,11 +22,21 @@ Requires: ohpc-filesystem
 # build depenencies and also provides the compiler and mpi setup scripts
 BuildRequires: ohpc-buildroot
 
+%global scl_setup() \
+	%%global scl_enable scl enable %%{?scl_ohpc} - <<'_SCL_EOF' \\\
+	set -xe \
+	%%global scl_disable _SCL_EOF
+
 # Set the compiler to devtoolset-6 if it is on a RHEL 7 system
 %if 0%{?rhel} == 7
+	%{!?compiler_family: %global compiler_family gnu7}
 	# OBS define's rhel_version to 700 for RHEL, in case we are
 	# not running in OBS
 	%global rhel_version 700
+	%if "%{compiler_family}" == "dts6"
+		%global scl_ohpc devtoolset-6
+		%{expand: %%scl_setup}
+	%endif
 %endif
 
 # OpenHPC convention: the default assumes the gnu compiler family;
@@ -47,7 +57,14 @@ Requires:      gcc-c++ intel-compilers-devel%{PROJ_DELIM} \
 BuildRequires: intel_licenses \
 	%endif \
 	%endif \
-}
+	%if "%{compiler_family}" == "dts6" \
+BuildRequires: devtoolset-6 \
+Requires:      devtoolset-6 \
+	%endif \
+	%if "%{compiler_family}" == "gnu7" \
+BuildRequires: gnu-7-compilers%{PROJ_DELIM} \
+Requires:      gnu-7-compilers%{PROJ_DELIM} \
+	%endif
 
 %global ohpc_setup_compiler %{expand:\
 	. %{OHPC_ADMIN}/ohpc/OHPC_setup_compiler %{compiler_family} \
