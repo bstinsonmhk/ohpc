@@ -109,12 +109,16 @@ export MPICC=mpicc
 export MPIFC=mpifc
 export MPICXX=mpicxx
 
+%{?scl_enable}
 ./configure --prefix=%{install_path} \
 	    --enable-fortran         \
             --enable-static=no       \
             --enable-parallel        \
 	    --enable-shared          \
 	    --enable-fortran2003     || { cat config.log && exit 1; }
+
+make %{?_smp_mflags}
+%{?scl_disable}
 
 %install
 
@@ -124,9 +128,9 @@ export OHPC_MPI_FAMILY=%{mpi_family}
 . %{_sourcedir}/OHPC_setup_mpi
 
 export NO_BRP_CHECK_RPATH=true
-
+%{?scl_enable}
 make %{?_smp_mflags} DESTDIR=$RPM_BUILD_ROOT install
-
+%{?scl_disable}
 # Remove static libraries
 find "%buildroot" -type f -name "*.la" | xargs rm -f
 
