@@ -162,7 +162,8 @@ MKL_LIB_PATH=$MKLROOT/lib/intel64
 BLAS="-L${MKL_LIB_PATH} -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -fopenmp -ldl -lpthread -lm"
 echo "MKL options flag .... $MKL "
 %endif
-
+export BLAS
+%{?scl_enable}
 ./configure  \
             --with-lapack="$BLAS" \
             --with-blas="$BLAS" \
@@ -175,11 +176,13 @@ echo "MKL options flag .... $MKL "
 
 
 make %{?_smp_mflags}
-
+%{?scl_disable}
 %install
 # OpenHPC compiler designation
 %ohpc_setup_compiler
+%{?scl_enable}
 make DESTDIR=%{buildroot} install
+%{?scl_disable}
 # there is a backup file in survival for 3.1.3
 %{__rm} -f %{buildroot}%{_libdir}/R/library/survival/NEWS.Rd.orig
 
