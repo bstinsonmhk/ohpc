@@ -1,6 +1,6 @@
 Name: ohpc-filesystem
 Version: 1
-Release: 1.ohpc
+Release: 2.ohpc
 Summary: Common openHPC directories
 
 Group: ohpc/admin
