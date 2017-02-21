@@ -38,8 +38,8 @@ elif [ "$OHPC_COMPILER_FAMILY" = "dts6" ]; then
     export CXX=g++
     export FC=gfortran
     export F77=gfortran
-    # Using compiler from scl, unloading all modules
     module purge
+    module load gnu/6
 else
     echo "Unsupported OHPC_COMPILER_FAMILY -> $OHPC_COMPILER_FAMILY"
     exit 1

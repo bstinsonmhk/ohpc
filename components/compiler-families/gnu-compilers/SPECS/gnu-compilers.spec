@@ -18,11 +18,18 @@
 %global source https://ftp-stud.hs-esslingen.de/pub/Mirrors/sources.redhat.com/gcc/snapshots/LATEST-7/gcc-7-%{date}.tar.bz2
 %global source_directory gcc-7-%{date}
 %else
+%if "%{compiler_family}" == "dts6"
+%global gnu_version 6
+%global gnu_release 0
+%global pname gnu-dts6-compilers
+%global source_directory %{nil}
+%else
 %global gnu_version 5.4.0
 %global gnu_release 1
 %global pname gnu-compilers
 %global source https://ftp.gnu.org/gnu/gcc/gcc-%{gnu_version}/gcc-%{gnu_version}.tar.bz2
 %global source_directory gcc-%{version}
+%endif
 %endif
 
 # Define subcomponent versions required for build
@@ -38,10 +45,12 @@ Release:   %{gnu_release}%{?dist}
 License:   GNU GPL
 Group:     %{PROJ_NAME}/compiler-families
 URL:       http://gcc.gnu.org/
+%if "%{compiler_family}" != "dts6"
 Source0:   %{source}
 Source1:   https://ftp.gnu.org/gnu/gmp/gmp-%{gmp_version}.tar.bz2
 Source2:   ftp://ftp.gnu.org/gnu/mpc/mpc-%{mpc_version}.tar.gz
 Source3:   http://ftp.gnu.org/gnu/mpfr/mpfr-%{mpfr_version}.tar.gz
+%endif
 Source4:   OHPC_macros
 
 BuildRequires:  bison
@@ -68,7 +77,8 @@ Core package for the GNU Compiler Collection, including the C language
 frontend.
 
 %prep
-%setup -q -n gcc-7-20170212 -a1 -a2 -a3
+%if "%{compiler_family}" != "dts6"
+%setup -q -n %{source_directory} -a1 -a2 -a3
 
 ln -s gmp-%{gmp_version} gmp
 ln -s mpc-%{mpc_version} mpc
@@ -80,8 +90,9 @@ ln -s mpfr-%{mpfr_version} mpfr
 cd obj
 ../configure --disable-multilib --enable-languages="c,c++,fortran"  --prefix=%{install_path}
 make %{?_smp_mflags}
-
+%endif
 %install
+%if "%{compiler_family}" != "dts6"
 cd obj
 make %{?_smp_mflags} DESTDIR=$RPM_BUILD_ROOT install
 
@@ -91,6 +102,8 @@ make %{?_smp_mflags} DESTDIR=$RPM_BUILD_ROOT install
 %fdupes -s $RPM_BUILD_ROOT/%{install_path}/install-tools
 %fdupes -s $RPM_BUILD_ROOT/%{install_path}/share
 %endif
+%endif
+
 
 # OpenHPC module file
 %{__mkdir_p} %{buildroot}/%{OHPC_MODULES}/gnu
@@ -138,8 +151,9 @@ EOF
 
 %files
 %defattr(-,root,root,-)
-%{install_path}
 %{OHPC_MODULES}/gnu/
+%if "%{compiler_family}" != "dts6"
+%{install_path}
 %doc COPYING
 %doc COPYING3
 %doc COPYING3.LIB
@@ -150,6 +164,7 @@ EOF
 %doc COPYING.RUNTIME
 %if "%{compiler_family}" != "gnu7"
 %doc NEWS
+%endif
 %endif
 
 %changelog
