@@ -93,15 +93,17 @@ COMPILER_FLAG="--compiler=intelem"
 %else
 module load openblas
 %endif
+%{?scl_enable}
 #CFLAGS="%{optflags} -fno-strict-aliasing" python setup.py build $COMPILER_FLAG
 python setup.py build $COMPILER_FLAG
-
+%{?scl_disable}
 
 %install
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
-
+%{?scl_enable}
 python setup.py install --root="%{buildroot}" --prefix="%{install_path}"
+%{?scl_disable}
 %if 0%{?suse_version}
 %fdupes -s %{buildroot}%{install_path}
 %endif
