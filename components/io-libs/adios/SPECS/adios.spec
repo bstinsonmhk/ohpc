@@ -140,6 +140,7 @@ export CFLAGS="-fp-model strict $CFLAGS"
 cp /usr/lib/rpm/config.guess config
 %endif
 
+%{?scl_enable}
 ./configure --prefix=%{install_path} \
     --enable-shared=yes \
     --enable-static=no \
@@ -168,7 +169,7 @@ sed -i -r -e 's/(hardcode_into_libs)=.*$/\1=no/' \
 	libtool
 
 make VERBOSE=1
-
+%{?scl_disable}
 chmod +x adios_config
 
 %install
@@ -177,9 +178,9 @@ chmod +x adios_config
 export OHPC_MPI_FAMILY=%{mpi_family}
 . %{_sourcedir}/OHPC_setup_mpi
 export NO_BRP_CHECK_RPATH=true
-
+%{?scl_enable}
 make DESTDIR=$RPM_BUILD_ROOT install
-
+%{?scl_disable}
 # this is clearly generated someway and shouldn't be static
 export PPATH="/lib64/python2.7/site-packages"
 export PATH=$(pwd):$PATH
@@ -190,9 +191,12 @@ module load openblas
 module load numpy
 export CFLAGS="-I$NUMPY_DIR$PPATH/numpy/core/include -I$(pwd)/src/public -L$(pwd)/src"
 pushd wrappers/numpy
+%{?scl_enable}
 make MPI=y python
 python setup.py install --prefix="%buildroot%{install_path}/python"
+%{?scl_disable}
 popd
+
 
 install -m644 utils/skel/lib/skel_suite.py \
 	utils/skel/lib/skel_template.py \
