@@ -155,6 +155,7 @@ touch -r %{SOURCE0} Makefile.pre.in
 # python installation
 touch Parser/asdl* Python/Python-ast.c Include/Python-ast.h
 
+%{?scl_enable}
 ./configure \
     --prefix=%{install_path} \
     --with-fpectl \
@@ -169,7 +170,7 @@ target=all
 %endif
 LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH \
     make %{?_smp_mflags} $target
-
+%{?scl_disable}
 %check
 # on hppa, the threading of glibc is quite broken. The tests just stop
 # at some point, and the machine does not build anything more until a
@@ -222,7 +223,9 @@ find . -name '*.py' -type f | grep -vE "^./Parser/|^./Python/" \
 ########################################
 # install it
 ########################################
+%{?scl_enable}
 make DESTDIR=$RPM_BUILD_ROOT install OPT="%{optflags} -fPIC"
+%{?scl_disable}
 mkdir -p %{buildroot}%{install_path}/bin
 mkdir -p %{buildroot}%{install_path}/include
 mkdir -p %{buildroot}%{install_path}/share/man/man1
