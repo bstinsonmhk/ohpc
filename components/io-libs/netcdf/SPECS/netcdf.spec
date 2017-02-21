@@ -127,6 +127,7 @@ export LDFLAGS="-L$HDF5_LIB"
 export CFLAGS="-L$HDF5_LIB -I$HDF5_INC"
 export CC=mpicc
 
+%{?scl_enable}
 ./configure --prefix=%{install_path} \
     --enable-shared \
     --enable-netcdf-4 \
@@ -137,7 +138,7 @@ export CC=mpicc
     --disable-static || { cat config.log && exit 1; }
 
 make %{?_smp_mflags}
-
+%{?scl_disable}
 %install
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
@@ -146,9 +147,9 @@ export OHPC_MPI_FAMILY=%{mpi_family}
 
 module load phdf5
 export CFLAGS="-L$HDF5_LIB -I$HDF5_INC"
-
+%{?scl_enable}
 make %{?_smp_mflags} DESTDIR=$RPM_BUILD_ROOT install
-
+%{?scl_disable}
 # OpenHPC module file
 %{__mkdir_p} %{buildroot}%{OHPC_MODULEDEPS}/%{compiler_family}-%{mpi_family}/%{pname}
 %{__cat} << EOF > %{buildroot}/%{OHPC_MODULEDEPS}/%{compiler_family}-%{mpi_family}/%{pname}/%{version}
