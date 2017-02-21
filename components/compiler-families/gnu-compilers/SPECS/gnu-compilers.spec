@@ -69,7 +69,11 @@ BuildRequires:  fdupes
 %endif
 
 
+%if "%{compiler_family}" == "dts6"
+%define install_path /opt/rh/devtoolset-6/root/usr
+%else
 %define install_path %{OHPC_COMPILERS}/gcc/%{version}
+%endif
 
 %description
 
