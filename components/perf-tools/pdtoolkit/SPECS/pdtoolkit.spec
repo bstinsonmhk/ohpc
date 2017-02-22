@@ -9,36 +9,9 @@
 #----------------------------------------------------------------------------eh-
 
 %include %{_sourcedir}/OHPC_macros
-%{!?PROJ_DELIM: %global PROJ_DELIM -ohpc}
+%ohpc_compiler
 
-# OpenHPC convention: the default assumes the gnu toolchain and openmpi
-# MPI family; however, these can be overridden by specifing the
-# compiler_family variable via rpmbuild or other
-# mechanisms.
-
-%{!?compiler_family: %global compiler_family gnu}
 %{!?mpi_family:      %global mpi_family openmpi}
-
-# Lmod dependency (note that lmod is pre-populated in the OpenHPC OBS build
-# environment; if building outside, lmod remains a formal build dependency).
-%if !0%{?OHPC_BUILD}
-BuildRequires: lmod%{PROJ_DELIM}
-%endif
-# Compiler dependencies
-BuildRequires: coreutils
-%if %{compiler_family} == gnu
-BuildRequires: gnu-compilers%{PROJ_DELIM}
-Requires:      gnu-compilers%{PROJ_DELIM}
-%endif
-%if %{compiler_family} == intel
-BuildRequires: gcc-c++ intel-compilers-devel%{PROJ_DELIM}
-Requires:      gcc-c++ intel-compilers-devel%{PROJ_DELIM}
-%if 0%{?OHPC_BUILD}
-BuildRequires: intel_licenses
-%endif
-%endif
-
-#-ohpc-header-comp-end------------------------------------------------
 
 # Base package name
 %define pname pdtoolkit
@@ -46,24 +19,17 @@ BuildRequires: intel_licenses
 
 Name: %{pname}-%{compiler_family}%{PROJ_DELIM}
 Version:        3.22
-Release:        1
+Release:        1%{?dist}
 License:        Program Database Toolkit License
 Summary:        PDT is a framework for analyzing source code
 Url:            http://www.cs.uoregon.edu/Research/pdt
 Group:          %{PROJ_NAME}/perf-tools
 Source:         https://www.cs.uoregon.edu/research/paracomp/pdtoolkit/Download/pdtoolkit-%{version}.tar.gz
 Source1:        OHPC_macros
-Source2:        OHPC_setup_compiler
 Source3:        OHPC_setup_mpi
-Provides:       %{name} = %{version}%{release}
-Provides:       %{name} = %{version}
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-DocDir:         %{OHPC_PUB}/doc/contrib
 
 #define _unpackaged_files_terminate_build      0
 #define __check_files /bin/true
-%define debug_package %{nil}
-
 
 # Default library install path
 %define install_path %{OHPC_LIBS}/%{compiler_family}/%{pname}/%version
@@ -78,17 +44,27 @@ Program Database Toolkit (PDT) is a framework for analyzing source code written 
 
 %build
 # OpenHPC compiler/mpi designation
-export OHPC_COMPILER_FAMILY=%{compiler_family}
-. %{_sourcedir}/OHPC_setup_compiler
+%ohpc_setup_compiler
 
 ./configure -prefix=%buildroot%{install_path} \
-%if %{compiler_family} == intel 
+%if "%{compiler_family}" == "intel"
         -icpc
 %else
         -GNU
 %endif
 
+export DONT_STRIP=1
 make %{?_smp_mflags}
+
+%install
+%ohpc_setup_compiler
+
+./configure -prefix=%buildroot%{install_path} \
+%if "%{compiler_family}" == "intel"
+        -icpc
+%else
+        -GNU
+%endif
 
 export DONT_STRIP=1
 make %{?_smp_mflags} install
@@ -197,17 +173,11 @@ EOF
 
 %{__mkdir} -p %{buildroot}/%{_docdir}
 
-%clean
-%{?buildroot:%__rm -rf "%{buildroot}"}
-
-%post
-
-%postun
-
 %files
 %defattr(-,root,root,-)
 %{OHPC_PUB}
 %doc CREDITS LICENSE README
 
 %changelog
-
+* Wed Feb 22 2017 Adrian Reber <areber@redhat.com> - 3.22-1
+- Switching to %%ohpc_compiler macro
